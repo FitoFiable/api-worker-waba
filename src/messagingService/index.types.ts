@@ -53,6 +53,4 @@ export interface ProviderEvolutionAPIConfig {
 
 export type ProviderConfig = ProviderWabaConfig | ProviderEvolutionAPIConfig;
 
-
-
 export type { StandardizedMessage } from "./standarized/receive/standarizeMessageReceived.types.js";

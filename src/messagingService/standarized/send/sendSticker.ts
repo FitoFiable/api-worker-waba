@@ -1,18 +1,27 @@
 // Main messaging provider send sticker standardization switch
 import { sendStickerWaba } from '../../providers/waba/send/sticker.js';
 import { StandardizedSendStickerInput, StandardizedSendResponse } from './sendSticker.types.js';
-import { ProviderConfig, providers } from '../../index.types.js';
+import { ProviderConfig } from '../../index.types.js';
 
 // Main standardization function that detects provider and routes accordingly
 export const standardizeSendSticker = async (
   input: StandardizedSendStickerInput,
-  config?: ProviderConfig,
-  provider?: providers
+  config: ProviderConfig
 ): Promise<StandardizedSendResponse> => {
   // Route to appropriate provider based on provider type
-  switch (provider) {
+  switch (config.selectedProvider) {
     case 'whatsapp':
-      return await sendStickerWaba(input, config || {});
+      return await sendStickerWaba(input, config);
+    
+    case 'evolutionAPI':
+      // TODO: Implement Evolution API sticker sending
+      return {
+        success: false,
+        error: {
+          message: `Evolution API sticker sending not implemented yet`,
+          code: 'NOT_IMPLEMENTED'
+        }
+      };
     
     // Future providers can be added here
     // case 'telegram':
@@ -24,7 +33,7 @@ export const standardizeSendSticker = async (
       return {
         success: false,
         error: {
-          message: `Unsupported messaging provider: ${provider}`,
+          message: `Unsupported messaging provider: ${(config as any).selectedProvider}`,
           code: 'UNSUPPORTED_PROVIDER'
         }
       };

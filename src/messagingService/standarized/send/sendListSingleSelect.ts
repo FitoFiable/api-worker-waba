@@ -1,18 +1,27 @@
 // Main messaging provider send list single select standardization switch
 import { sendListSingleSelectWaba } from '../../providers/waba/send/listSingleSelect.js';
 import { StandardizedSendListSingleSelectInput, StandardizedSendResponse } from './sendListSingleSelect.types.js';
-import { ProviderConfig, providers } from '../../index.types.js';
+import { ProviderConfig } from '../../index.types.js';
 
 // Main standardization function that detects provider and routes accordingly
 export const standardizeSendListSingleSelect = async (
   input: StandardizedSendListSingleSelectInput,
-  config?: ProviderConfig,
-  provider?: providers
+  config: ProviderConfig
 ): Promise<StandardizedSendResponse> => {
   // Route to appropriate provider based on provider type
-  switch (provider) {
+  switch (config.selectedProvider) {
     case 'whatsapp':
-      return await sendListSingleSelectWaba(input, config || {});
+      return await sendListSingleSelectWaba(input, config);
+    
+    case 'evolutionAPI':
+      // TODO: Implement Evolution API list sending
+      return {
+        success: false,
+        error: {
+          message: `Evolution API list sending not implemented yet`,
+          code: 'NOT_IMPLEMENTED'
+        }
+      };
     
     // Future providers can be added here
     // case 'telegram':
@@ -24,7 +33,7 @@ export const standardizeSendListSingleSelect = async (
       return {
         success: false,
         error: {
-          message: `Unsupported messaging provider: ${provider}`,
+          message: `Unsupported messaging provider: ${(config as any).selectedProvider}`,
           code: 'UNSUPPORTED_PROVIDER'
         }
       };
