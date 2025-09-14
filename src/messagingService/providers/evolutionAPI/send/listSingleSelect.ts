@@ -19,27 +19,43 @@ export const sendListSingleSelectEvolutionAPI = async (
   const evolutionConfig = config as ProviderEvolutionAPIConfig;
 
   try {
-    // Convert list sections to poll options
-    const pollOptions = input.sections.flatMap(section => 
-      // section.items.map(item => `${item.title}${item.description ? ` - ${item.description}` : ''}`) # includes descriptions
-      section.items.map(item => `${item.title}`)
-    );
+    // Format list as a nicely structured text message
+    let formattedMessage = `*${input.headerText}*\n\n`;
+    
+    if (input.bodyText) {
+      formattedMessage += `${input.bodyText}\n\n`;
+    }
 
-    // Prepare Evolution API payload for poll (simulating list)
+    // Add each section with its items (continuous numbering)
+    let globalItemNumber = 1;
+    input.sections.forEach((section, sectionIndex) => {
+      formattedMessage += `*${section.title}*\n`;
+      section.items.forEach((item) => {
+        formattedMessage += `${globalItemNumber}. *${item.title}*`;
+        if (item.description) {
+          formattedMessage += ` - ${item.description}`;
+        }
+        formattedMessage += `\n`;
+        globalItemNumber++;
+      });
+      if (sectionIndex < input.sections.length - 1) {
+        formattedMessage += `\n`;
+      }
+    });
+
+    // Add footer if provided
+    if (input.footerText) {
+      formattedMessage += `\n\n${input.footerText}`;
+    }
+
+    // Prepare Evolution API payload for text message
     const payload: any = {
       number: input.to,
-      name: `${input.headerText}${input.bodyText ? `\n\n${input.bodyText}` : ''}`,
-      selectableCount: 1, // Single select like a list
-      values: pollOptions,
+      text: formattedMessage,
       delay: 500,
       linkPreview: false,
       mentionsEveryOne: false
     };
-
-    // Add footer if provided
-    if (input.footerText) {
-      payload.name += `\n\n${input.footerText}`;
-    }
 
     // Add reply context if provided
     if (input.replyToMessageId) {
@@ -53,8 +69,8 @@ export const sendListSingleSelectEvolutionAPI = async (
       };
     }
 
-    // Send message via Evolution API using poll endpoint
-    const response = await fetch(`${evolutionConfig.evolutionAPIUrl}/message/sendPoll/${evolutionConfig.evolutionInstanceId}`, {
+    // Send message via Evolution API using text endpoint
+    const response = await fetch(`${evolutionConfig.evolutionAPIUrl}/message/sendText/${evolutionConfig.evolutionInstanceId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,7 +85,7 @@ export const sendListSingleSelectEvolutionAPI = async (
       return {
         success: false,
         error: {
-          message: responseData.error?.message || responseData.message || 'Failed to send poll (simulating list)',
+          message: responseData.error?.message || responseData.message || 'Failed to send formatted list message',
           code: responseData.error?.code || response.status
         }
       };
