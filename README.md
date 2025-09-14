@@ -1,2 +1,2 @@
 # api-worker-waba
-Waba webhook handler
+Waba webhook handler (while getting Waba aproval will use evolution API...)
