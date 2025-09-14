@@ -10,16 +10,17 @@ import {
   EvolutionAPIInteractiveMessage 
 } from './standarizerInput.types.js';
 
-import { imageInputToText } from './receive/image.js';
-import { audioInputToText } from './receive/audio.js';
+import { ImageToTextService } from '@/messagingService/services/image_to_text/index.js';
+import { AudioToTextService } from '@/messagingService/services/audio_to_text/index.js';
 
 import { StandardizedMessage, ProviderConfig } from '@/messagingService/index.types.js';
 import { isEvolutionAPIConfig } from './validation.js';
 
 export const standardizeEvolutionAPIMessage = async (
   message: EvolutionAPIMessage,
-  receiverID: string,
-  config: ProviderConfig
+  senderID: string,
+  config: ProviderConfig,
+  contextInfo?: any
 ): Promise<StandardizedMessage | null> => {
   // Validate that config is for Evolution API
   if (!isEvolutionAPIConfig(config)) {
@@ -39,63 +40,104 @@ export const standardizeEvolutionAPIMessage = async (
   // Check for audio message
   else if ('audioMessage' in message) {
     messageType = 'audio';
-    content = await audioInputToText(message as EvolutionAPIAudioMessage, config);
+    const audioMessage = message as EvolutionAPIAudioMessage;
+    content = await audioInputToText(audioMessage, config);
   }
   // Check for image message
   else if ('imageMessage' in message) {
     messageType = 'image';
     const imageMessage = message as EvolutionAPIImageMessage;
-    content = await imageInputToText(imageMessage, config);
-    // Use caption if available
+    // Use caption if available, otherwise process image
     if (imageMessage.imageMessage.caption) {
       content = imageMessage.imageMessage.caption;
-    }
-  }
-  // Check for video message
-  else if ('videoMessage' in message) {
-    messageType = 'video';
-    const videoMessage = message as EvolutionAPIVideoMessage;
-    content = videoMessage.videoMessage.caption || 'Video message';
-  }
-  // Check for document message
-  else if ('documentMessage' in message) {
-    messageType = 'document';
-    const docMessage = message as EvolutionAPIDocumentMessage;
-    content = docMessage.documentMessage.fileName || 'Document';
-  }
-  // Check for sticker message
-  else if ('stickerMessage' in message) {
-    messageType = 'sticker';
-    content = 'Sticker';
-  }
-  // Check for interactive message (list reply)
-  else if ('interactiveMessage' in message) {
-    messageType = 'list_reply';
-    const interactiveMessage = message as EvolutionAPIInteractiveMessage;
-    if (interactiveMessage.interactiveMessage.type === 'listResponseMessage') {
-      const listReply = interactiveMessage.interactiveMessage.listResponseMessage;
-      content = `${listReply.title}: ${listReply.description || ''}`;
     } else {
-      content = 'Interactive message';
+      content = await imageInputToText(imageMessage, config);
     }
   }
   else {
-    console.warn(`Unsupported message type: ${JSON.stringify(message)}`);
+    console.warn(`Unsupported message type. Only text, audio, and image are supported: ${JSON.stringify(message)}`);
     return null;
   }
 
-  // Generate a message ID (Evolution API doesn't provide one in the same format)
-  const messageId = `evolution_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Extract message ID from contextInfo if available, otherwise generate one
+  const messageId = contextInfo?.stanzaId || `evolution_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Extract associated message ID from contextInfo if this is a reply
+  const associatedMessageId = contextInfo?.stanzaId || undefined;
 
   const standardizedMessage: StandardizedMessage = {
     messageId,
-    sender: receiverID, // This would need to be extracted from the webhook payload
-    receiver: receiverID,
+    sender: senderID,
+    receiver: config.evolutionInstanceId || 'unknown', // Use instance ID as receiver
     timestamp: Date.now().toString(),
     messageType,
     content,
-    asociatedMessageId: undefined, // This would need to be extracted from contextInfo if available
+    asociatedMessageId: associatedMessageId,
   };
 
   return standardizedMessage;
+};
+
+// Helper function to process audio messages
+const audioInputToText = async (
+  audioMessage: EvolutionAPIAudioMessage,
+  config: ProviderConfig
+): Promise<string> => {
+  try {
+    // Check if we have audio processing service available
+    if (config.cloudflareCredentials) {
+      const audioService = new AudioToTextService({
+        method: 'CLOUDFLARE_WHISPER',
+        cloudflareWhisperConfig: {
+          accountId: config.cloudflareCredentials.accountId,
+          apiToken: config.cloudflareCredentials.apiToken
+        }
+      });
+      
+      // Extract audio URL from the message
+      const audioUrl = audioMessage.audioMessage.url;
+      if (audioUrl) {
+        // In a real implementation, you would process the audio URL here
+        // return await audioService.transcribe(audioUrl);
+        return 'Audio message (transcription not implemented)';
+      }
+    }
+    
+    return 'Audio message';
+  } catch (error) {
+    console.error('Error processing audio message:', error);
+    return 'Audio message (processing failed)';
+  }
+};
+
+// Helper function to process image messages
+const imageInputToText = async (
+  imageMessage: EvolutionAPIImageMessage,
+  config: ProviderConfig
+): Promise<string> => {
+  try {
+    // Check if we have image processing service available
+    if (config.awsCredentials) {
+      const imageService = new ImageToTextService({
+        method: 'AWS_TEXTRACT',
+        awsTextractConfig: {
+          accessKey: config.awsCredentials.accessKey,
+          secretKey: config.awsCredentials.secretKey
+        }
+      });
+      
+      // Extract image URL from the message
+      const imageUrl = imageMessage.imageMessage.url;
+      if (imageUrl) {
+        // In a real implementation, you would process the image URL here
+        // return await imageService.extractText(imageUrl);
+        return 'Image message (OCR not implemented)';
+      }
+    }
+    
+    return 'Image message';
+  } catch (error) {
+    console.error('Error processing image message:', error);
+    return 'Image message (processing failed)';
+  }
 };
