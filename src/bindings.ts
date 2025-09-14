@@ -9,10 +9,12 @@ export type Bindings = {
 
     CLOUDFLARE_ACCOUNT_ID: string
     AWS_ACCESS_KEY: string
+    API_CORE_URL: string
 
     // SECRETOS: SE DEBEN REGISTRAR MANUALMENTE EN LA UI DE CLOUDFLARE
     EVOLUTION_API_KEY: string
 
     CLOUDFLARE_API_TOKEN: string
     AWS_SECRET_KEY: string
+
 }

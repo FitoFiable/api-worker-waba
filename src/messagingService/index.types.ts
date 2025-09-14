@@ -49,6 +49,7 @@ export interface ProviderEvolutionAPIConfig {
   cloudflareCredentials?: CloudflareCredentials;
   awsCredentials?: AWSCredentials;
   selectedProvider: "evolutionAPI";
+  uploadFileEndpoint?: string;
 }
 
 export type ProviderConfig = ProviderWabaConfig | ProviderEvolutionAPIConfig;

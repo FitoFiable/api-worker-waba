@@ -26,6 +26,7 @@ app.use('*', async (c, next) => {
     evolutionAPIKey: c.env.EVOLUTION_API_KEY,
     evolutionInstanceId: c.env.EVOLUTION_INSTANCE_ID,
     selectedProvider: 'evolutionAPI',
+    uploadFileEndpoint: c.env.API_CORE_URL + '/media/upload'
   });
   
   // Extend context with providers
@@ -69,7 +70,7 @@ app.post("/webhook-evolution-api", async (c) => {
           if (standardizedMessage && "messageType" in standardizedMessage) {
             await c.get('messagingService').sendText({
               to: senderId,
-              message: `Echo: ${standardizedMessage.messageType}: ${standardizedMessage.content}`
+              message: `Echo: ${standardizedMessage.messageType} - ${standardizedMessage.associatedMediaUrl} : ${standardizedMessage.content}`
             });
           }
         } else {
