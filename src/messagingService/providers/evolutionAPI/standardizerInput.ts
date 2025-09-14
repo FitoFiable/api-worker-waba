@@ -20,7 +20,7 @@ export const standardizeEvolutionAPIMessage = async (
   message: EvolutionAPIMessage,
   senderID: string,
   config: ProviderConfig,
-  contextInfo?: any
+  fullMessageData?: any
 ): Promise<StandardizedMessage | null> => {
   // Validate that config is for Evolution API
   if (!isEvolutionAPIConfig(config)) {
@@ -59,11 +59,11 @@ export const standardizeEvolutionAPIMessage = async (
     return null;
   }
 
-  // Extract message ID from contextInfo if available, otherwise generate one
-  const messageId = contextInfo?.stanzaId || `evolution_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Extract message ID from fullMessageData if available, otherwise generate one
+  const messageId = fullMessageData?.key?.id || `evolution_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   // Extract associated message ID from contextInfo if this is a reply
-  const associatedMessageId = contextInfo?.stanzaId || undefined;
+  const associatedMessageId = fullMessageData?.contextInfo?.stanzaId || undefined;
 
   const standardizedMessage: StandardizedMessage = {
     messageId,

@@ -28,14 +28,14 @@ export class MessageProvider {
     this.providerConfig = providerConfig ;
   }
 
-  async standarizeInput(inputReceived: MessagingProviderInput, contextInfo?: any): Promise<StandardizedMessage[] | null> {
+  async standarizeInput(inputReceived: MessagingProviderInput, fullMessageData?: any): Promise<StandardizedMessage[] | null> {
     // Handle single message input
     if ('message' in inputReceived && 'receiverID' in inputReceived) {
       const singleMessage = await standardizeSingleMessage(
         inputReceived.message, 
         inputReceived.receiverID,
         this.providerConfig,
-        contextInfo
+        fullMessageData
       );
       return singleMessage ? [singleMessage] : null;
     }

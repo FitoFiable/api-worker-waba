@@ -12,7 +12,7 @@ export const standardizeSingleMessage = async (
   message: any,
   receiverID: string,
   config: ProviderConfig,
-  contextInfo?: any
+  fullMessageData?: any
 ): Promise<StandardizedMessage | null> => {
   // Route to appropriate provider based on provider type
   switch (config.selectedProvider) {
@@ -20,7 +20,7 @@ export const standardizeSingleMessage = async (
       return await standardizeWabaMessage(message, receiverID, config);
     
     case 'evolutionAPI':
-      return await standardizeEvolutionAPIMessage(message, receiverID, config, contextInfo);
+      return await standardizeEvolutionAPIMessage(message, receiverID, config, fullMessageData);
     
     // Future providers can be added here
     // case 'telegram':

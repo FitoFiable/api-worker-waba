@@ -62,7 +62,7 @@ app.post("/webhook-evolution-api", async (c) => {
         const standardizedMessages = await c.get('messagingService').standarizeInput({
           message: messageData.message,
           receiverID: senderId
-        }, messageData.contextInfo);
+        }, messageData);
         
         if (standardizedMessages && standardizedMessages.length > 0) {
           const standardizedMessage = standardizedMessages[0];
@@ -78,6 +78,16 @@ app.post("/webhook-evolution-api", async (c) => {
               to: senderId,
               message: `Echo: ${standardizedMessage.content}`
             });
+            
+            // If this is a reply to another message, also send a reaction
+            if (standardizedMessage.asociatedMessageId) {
+              console.log(`😀 Sending reaction to associated message: ${standardizedMessage.asociatedMessageId}`);
+              await c.get('messagingService').sendReaction({
+                to: senderId,
+                emoji: '👍',
+                messageId: standardizedMessage.asociatedMessageId
+              });
+            }
           }
         } else {
           console.log('❌ Failed to standardize message');
