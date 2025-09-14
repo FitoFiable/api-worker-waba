@@ -17,14 +17,21 @@ export class ImageToTextService {
    * @returns Promise with the extracted text
    */
   async convertImageToText(
-    imageBuffer: ArrayBuffer,
+    imageBuffer?: ArrayBuffer,
+    imageBase64?: string, // base64 encoded image data
     method?: ConversionMethod
   ): Promise<string> {
     const conversionMethod = method || this.conversionMethod;
     
     switch (conversionMethod) {
       case 'AWS_TEXTRACT':
-        return this.convertWithTextract(imageBuffer);
+        if (imageBuffer) {
+          return this.convertWithTextract(imageBuffer);
+        } else if (imageBase64) {
+          return this.convertWithTextractBase64(imageBase64);
+        } else {
+          throw new Error('No image data provided');
+        }
       case 'NONE':
         return 'No image to text conversion method specified';
       default:
@@ -114,6 +121,63 @@ export class ImageToTextService {
       throw new Error(`Failed to convert image to text: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+  private async convertWithTextractBase64(
+    imageBase64: string, // base64 encoded image data
+  ): Promise<string> {
+    if (!this.awsTextractConfig) {
+      throw new Error('AWS Textract configuration is required for AWS_TEXTRACT method');
+    }
+    const region = this.awsTextractConfig?.region || 'us-east-1';
+    const endpoint = this.awsTextractConfig?.endpoint || `https://textract.${region}.amazonaws.com`;
+
+    const awsClient = new AwsClient({
+      accessKeyId: this.awsTextractConfig?.accessKey,
+      secretAccessKey: this.awsTextractConfig?.secretKey,
+      region: region,
+      service: 'textract'
+    });
+
+    const request = new Request(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-amz-json-1.1',
+        'X-Amz-Target': 'Textract.DetectDocumentText'
+      },
+      body: JSON.stringify({
+        Document: {
+          Bytes: imageBase64
+        }
+      })
+    });
+
+    const response = await awsClient.fetch(request);
+    
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Textract request failed: ${errText}`);
+    }
+
+    const result = await response.json() as {
+      Blocks: {
+        BlockType: string;
+        Text?: string;
+        Geometry?: {
+          BoundingBox: { Left: number; Top: number; Width: number; Height: number };
+        };
+      }[];
+    };
+    
+    // Extract text with coordinates
+    const lines = result.Blocks.filter(b => b.BlockType === "LINE");
+    const extractedData = lines.map(line => ({
+      text: line.Text,
+      box: line.Geometry?.BoundingBox,
+    }));
+    
+    return JSON.stringify(extractedData, null, 2);
+  }
+
 
   
 }

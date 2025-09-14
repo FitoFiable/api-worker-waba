@@ -83,4 +83,7 @@ export class AudioToTextService {
       throw new Error(`Failed to convert audio to text: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+
+
 }

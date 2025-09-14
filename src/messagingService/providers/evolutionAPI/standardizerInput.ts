@@ -15,6 +15,7 @@ import { AudioToTextService } from '@/messagingService/services/audio_to_text/in
 
 import { StandardizedMessage, ProviderConfig } from '@/messagingService/index.types.js';
 import { isEvolutionAPIConfig } from './validation.js';
+import { getBase64 } from './getBase64.js';
 
 export const standardizeEvolutionAPIMessage = async (
   message: EvolutionAPIMessage,
@@ -40,19 +41,13 @@ export const standardizeEvolutionAPIMessage = async (
   // Check for audio message
   else if ('audioMessage' in message) {
     messageType = 'audio';
-    const audioMessage = message as EvolutionAPIAudioMessage;
-    content = await audioInputToText(audioMessage, config);
+    content = await audioInputToText(config, fullMessageData);
   }
   // Check for image message
   else if ('imageMessage' in message) {
     messageType = 'image';
-    const imageMessage = message as EvolutionAPIImageMessage;
-    // Use caption if available, otherwise process image
-    if (imageMessage.imageMessage.caption) {
-      content = imageMessage.imageMessage.caption;
-    } else {
-      content = await imageInputToText(imageMessage, config);
-    }
+    content = await imageInputToText(config, fullMessageData);
+    
   }
   else {
     console.warn(`Unsupported message type. Only text, audio, and image are supported: ${JSON.stringify(message)}`);
@@ -80,11 +75,10 @@ export const standardizeEvolutionAPIMessage = async (
 
 // Helper function to process audio messages
 const audioInputToText = async (
-  audioMessage: EvolutionAPIAudioMessage,
-  config: ProviderConfig
+  config: ProviderConfig,
+  fullMessageData: any
 ): Promise<string> => {
   try {
-    // Check if we have audio processing service available
     if (config.cloudflareCredentials) {
       const audioService = new AudioToTextService({
         method: 'CLOUDFLARE_WHISPER',
@@ -93,13 +87,12 @@ const audioInputToText = async (
           apiToken: config.cloudflareCredentials.apiToken
         }
       });
+      const base64 = await getBase64(config, fullMessageData.key.id);
+      const binary = Uint8Array.from(atob(base64.base64), c => c.charCodeAt(0));
       
-      // Extract audio URL from the message
-      const audioUrl = audioMessage.audioMessage.url;
-      if (audioUrl) {
+      if (true) {
         // In a real implementation, you would process the audio URL here
-        // return await audioService.transcribe(audioUrl);
-        return 'Audio message (transcription not implemented)';
+        return await audioService.convertAudioToText(binary, "CLOUDFLARE_WHISPER");
       }
     }
     
@@ -112,8 +105,8 @@ const audioInputToText = async (
 
 // Helper function to process image messages
 const imageInputToText = async (
-  imageMessage: EvolutionAPIImageMessage,
-  config: ProviderConfig
+  config: ProviderConfig,
+  fullMessageData: any
 ): Promise<string> => {
   try {
     // Check if we have image processing service available
@@ -125,14 +118,11 @@ const imageInputToText = async (
           secretKey: config.awsCredentials.secretKey
         }
       });
-      
-      // Extract image URL from the message
-      const imageUrl = imageMessage.imageMessage.url;
-      if (imageUrl) {
-        // In a real implementation, you would process the image URL here
-        // return await imageService.extractText(imageUrl);
-        return 'Image message (OCR not implemented)';
-      }
+
+      const base64 = await getBase64(config, fullMessageData.key.id);
+      const text = await imageService.convertImageToText(undefined, base64.base64,'AWS_TEXTRACT');
+      return text;
+  
     }
     
     return 'Image message';

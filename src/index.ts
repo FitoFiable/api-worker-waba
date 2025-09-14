@@ -45,7 +45,7 @@ app.post("/webhook-evolution-api", async (c) => {
   try {
     // Get the webhook payload
     const payload = await c.req.json();
-    console.log('Evolution API Webhook received:', JSON.stringify(payload, null, 2));
+    console.log("payload:", payload)
 
     // Check if it's a message event
     if (payload.event === 'messages.upsert') {
@@ -54,10 +54,7 @@ app.post("/webhook-evolution-api", async (c) => {
       // Check if message is from someone else (not from us)
       if (!messageData.key.fromMe) {
         const senderId = messageData.key.remoteJid.replace('@s.whatsapp.net', '');
-        
-        console.log(`📨 Received message from ${messageData.pushName} (${senderId})`);
-        console.log(`📝 Message content:`, messageData.message);
-        
+       
         // Standardize the message using our messaging service
         const standardizedMessages = await c.get('messagingService').standarizeInput({
           message: messageData.message,
@@ -66,28 +63,14 @@ app.post("/webhook-evolution-api", async (c) => {
         
         if (standardizedMessages && standardizedMessages.length > 0) {
           const standardizedMessage = standardizedMessages[0];
-          console.log('✅ Standardized message:', JSON.stringify(standardizedMessage, null, 2));
-          
-          // Here you can add your business logic to handle the received message
-          // For example: save to database, trigger workflows, etc.
           
           // Example: Echo back the message
-          if (standardizedMessage?.messageType === 'text') {
-            console.log(`🔄 Echoing back: "Echo: ${standardizedMessage.content}"`);
+          console.log(standardizedMessage)
+          if (standardizedMessage && "messageType" in standardizedMessage) {
             await c.get('messagingService').sendText({
               to: senderId,
-              message: `Echo: ${standardizedMessage.content}`
+              message: `Echo: ${standardizedMessage.messageType}: ${standardizedMessage.content}`
             });
-            
-            // If this is a reply to another message, also send a reaction
-            if (standardizedMessage.asociatedMessageId) {
-              console.log(`😀 Sending reaction to associated message: ${standardizedMessage.asociatedMessageId}`);
-              await c.get('messagingService').sendReaction({
-                to: senderId,
-                emoji: '👍',
-                messageId: standardizedMessage.asociatedMessageId
-              });
-            }
           }
         } else {
           console.log('❌ Failed to standardize message');

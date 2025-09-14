@@ -9,13 +9,21 @@ export const standardizeSendText = async (
   input: StandardizedSendTextInput,
   config: ProviderConfig
 ): Promise<StandardizedSendResponse> => {
+  // Intercept and truncate message if longer than 1024 characters
+  const processedInput = {
+    ...input,
+    message: input.message.length > 4001 
+      ? input.message.substring(0, 4000) + '...'
+      : input.message
+  };
+  
   // Route to appropriate provider based on provider type
   switch (config.selectedProvider) {
     case 'whatsapp':
-      return await sendTextWaba(input, config);
+      return await sendTextWaba(processedInput, config);
     
     case 'evolutionAPI':
-      return await sendTextEvolutionAPI(input, config);
+      return await sendTextEvolutionAPI(processedInput, config);
     
     // Future providers can be added here
     // case 'telegram':
