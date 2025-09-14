@@ -1,5 +1,6 @@
 // Main messaging provider send reaction standardization switch
 import { sendReactionWaba } from '../../providers/waba/send/reaction.js';
+import { sendReactionEvolutionAPI } from '../../providers/evolutionAPI/send/reaction.js';
 import { StandardizedSendReactionInput, StandardizedSendResponse } from './sendReaction.types.js';
 import { ProviderConfig } from '../../index.types.js';
 
@@ -14,14 +15,7 @@ export const standardizeSendReaction = async (
       return await sendReactionWaba(input, config);
     
     case 'evolutionAPI':
-      // TODO: Implement Evolution API reaction sending
-      return {
-        success: false,
-        error: {
-          message: `Evolution API reaction sending not implemented yet`,
-          code: 'NOT_IMPLEMENTED'
-        }
-      };
+      return await sendReactionEvolutionAPI(input, config);
     
     // Future providers can be added here
     // case 'telegram':

@@ -1,5 +1,6 @@
 // Main messaging provider send standardization switch
 import { sendTextWaba } from '../../providers/waba/send/text.js';
+import { sendTextEvolutionAPI } from '../../providers/evolutionAPI/send/text.js';
 import { StandardizedSendTextInput, StandardizedSendResponse } from './sendText.types.js';
 import { ProviderConfig } from '../../index.types.js';
 
@@ -14,14 +15,7 @@ export const standardizeSendText = async (
       return await sendTextWaba(input, config);
     
     case 'evolutionAPI':
-      // TODO: Implement Evolution API text sending
-      return {
-        success: false,
-        error: {
-          message: `Evolution API text sending not implemented yet`,
-          code: 'NOT_IMPLEMENTED'
-        }
-      };
+      return await sendTextEvolutionAPI(input, config);
     
     // Future providers can be added here
     // case 'telegram':

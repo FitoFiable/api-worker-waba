@@ -40,34 +40,40 @@ app.get("/", async (c) => {
 })
 app.get("/send-dummy-message", async (c) => {
   const { to, message } = { to: "573122779727", message: "Hola, este es un mensaje de prueba" }
-
-  const evoBaseUrl = c.env.EVOLUTION_API_URL      // e.g. https://api.evolution-api.com
-  const instanceId = c.env.EVOLUTION_INSTANCE_ID   // set in Wrangler secrets
-  const apiKey = c.env.EVOLUTION_API_KEY           // set in Wrangler secrets
-
-  console.log(`Sending message to ${evoBaseUrl}/message/sendText/${instanceId}`)
-  const res = await fetch(
-    `${evoBaseUrl}/message/sendText/${instanceId}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': apiKey,   // required by Evolution API
-      },
-      body: JSON.stringify({
-        number: to, // E.164 format without @ suffix
-        text: message,
-        delay: 500,
-        linkPreview: false,
-        mentionsEveryOne: false
-      }),
-    }
-  )
-
-  if (!res.ok) {
-    return c.json({ error: await res.text() }, 500)
+  const res = await c.get('messagingService').sendText({ to, message })
+  console.log(res)
+  if (!res.success) {
+    return c.json({ error: await res.error?.message }, 500)
   }
-  return c.json({ message: "Mensaje enviado correctamente", data: await res.json() })
+  return c.json({ message: "Mensaje enviado correctamente", data: await res.messageId })
+
+  // const evoBaseUrl = c.env.EVOLUTION_API_URL      // e.g. https://api.evolution-api.com
+  // const instanceId = c.env.EVOLUTION_INSTANCE_ID   // set in Wrangler secrets
+  // const apiKey = c.env.EVOLUTION_API_KEY           // set in Wrangler secrets
+
+  // console.log(`Sending message to ${evoBaseUrl}/message/sendText/${instanceId}`)
+  // const res = await fetch(
+  //   `${evoBaseUrl}/message/sendText/${instanceId}`,
+  //   {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'apikey': apiKey,   // required by Evolution API
+  //     },
+  //     body: JSON.stringify({
+  //       number: to, // E.164 format without @ suffix
+  //       text: message,
+  //       delay: 500,
+  //       linkPreview: false,
+  //       mentionsEveryOne: false
+  //     }),
+  //   }
+  // )
+
+  // if (!res.ok) {
+  //   return c.json({ error: await res.text() }, 500)
+  // }
+  // return c.json({ message: "Mensaje enviado correctamente", data: await res.json() })
 })
 
 app.get("/fetch-instances", async (c) => {

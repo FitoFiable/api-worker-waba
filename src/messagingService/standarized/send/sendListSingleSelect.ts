@@ -1,5 +1,6 @@
 // Main messaging provider send list single select standardization switch
 import { sendListSingleSelectWaba } from '../../providers/waba/send/listSingleSelect.js';
+import { sendListSingleSelectEvolutionAPI } from '../../providers/evolutionAPI/send/listSingleSelect.js';
 import { StandardizedSendListSingleSelectInput, StandardizedSendResponse } from './sendListSingleSelect.types.js';
 import { ProviderConfig } from '../../index.types.js';
 
@@ -14,14 +15,7 @@ export const standardizeSendListSingleSelect = async (
       return await sendListSingleSelectWaba(input, config);
     
     case 'evolutionAPI':
-      // TODO: Implement Evolution API list sending
-      return {
-        success: false,
-        error: {
-          message: `Evolution API list sending not implemented yet`,
-          code: 'NOT_IMPLEMENTED'
-        }
-      };
+      return await sendListSingleSelectEvolutionAPI(input, config);
     
     // Future providers can be added here
     // case 'telegram':

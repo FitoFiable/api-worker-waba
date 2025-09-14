@@ -1,5 +1,6 @@
 // Main messaging provider send sticker standardization switch
 import { sendStickerWaba } from '../../providers/waba/send/sticker.js';
+import { sendStickerEvolutionAPI } from '../../providers/evolutionAPI/send/sticker.js';
 import { StandardizedSendStickerInput, StandardizedSendResponse } from './sendSticker.types.js';
 import { ProviderConfig } from '../../index.types.js';
 
@@ -14,14 +15,7 @@ export const standardizeSendSticker = async (
       return await sendStickerWaba(input, config);
     
     case 'evolutionAPI':
-      // TODO: Implement Evolution API sticker sending
-      return {
-        success: false,
-        error: {
-          message: `Evolution API sticker sending not implemented yet`,
-          code: 'NOT_IMPLEMENTED'
-        }
-      };
+      return await sendStickerEvolutionAPI(input, config);
     
     // Future providers can be added here
     // case 'telegram':

@@ -1,5 +1,6 @@
 // Main messaging provider send image standardization switch
 import { sendImageWaba } from '../../providers/waba/send/image.js';
+import { sendImageEvolutionAPI } from '../../providers/evolutionAPI/send/image.js';
 import { StandardizedSendImageInput, StandardizedSendResponse } from './sendImage.types.js';
 import { ProviderConfig } from '../../index.types.js';
 
@@ -14,14 +15,7 @@ export const standardizeSendImage = async (
       return await sendImageWaba(input, config);
     
     case 'evolutionAPI':
-      // TODO: Implement Evolution API image sending
-      return {
-        success: false,
-        error: {
-          message: `Evolution API image sending not implemented yet`,
-          code: 'NOT_IMPLEMENTED'
-        }
-      };
+      return await sendImageEvolutionAPI(input, config);
     
     // Future providers can be added here
     // case 'telegram':

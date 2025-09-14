@@ -1,5 +1,6 @@
 // Main messaging provider standardization switch
 import { standardizeWabaMessage } from '../../providers/waba/index.js';
+import { standardizeEvolutionAPIMessage } from '../../providers/evolutionAPI/index.js';
 import { StandardizedMessage } from './standarizeMessageReceived.types.js';
 import { ProviderConfig } from '../../index.types.js';
 
@@ -18,9 +19,7 @@ export const standardizeSingleMessage = async (
       return await standardizeWabaMessage(message, receiverID, config);
     
     case 'evolutionAPI':
-      // TODO: Implement Evolution API message standardization
-      console.warn(`Evolution API message standardization not implemented yet`);
-      return null;
+      return await standardizeEvolutionAPIMessage(message, receiverID, config);
     
     // Future providers can be added here
     // case 'telegram':
