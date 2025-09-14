@@ -1,67 +1,22 @@
-import { StandardizedSendListSingleSelectInput, StandardizedSendResponse } from '../../../standarized/send/sendListSingleSelect.types.js';
-import { ProviderConfig } from '../../../index.types.js';
+import { StandardizedSendListSingleSelectInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendListSingleSelect.types.js';
+import { ProviderConfig, ProviderWabaConfig } from '@/messagingService/index.types.js';
+import { validateWabaConfig, validateListInput } from '../validation.js';
 
 // WABA-specific list single select message sending
 export const sendListSingleSelectWaba = async (
   input: StandardizedSendListSingleSelectInput,
   config: ProviderConfig
 ): Promise<StandardizedSendResponse> => {
-  // Validate required configuration
-  if (!config.whatsappToken) {
-    return {
-      success: false,
-      error: {
-        message: 'WhatsApp token is required for sending messages',
-        code: 'MISSING_TOKEN'
-      }
-    };
-  }
+  // Validate configuration
+  const configError = validateWabaConfig(config);
+  if (configError) return configError;
 
-  if (!config.whatsappPhoneNumberId) {
-    return {
-      success: false,
-      error: {
-        message: 'WhatsApp phone number ID is required for sending messages',
-        code: 'MISSING_PHONE_NUMBER_ID'
-      }
-    };
-  }
+  // Validate input
+  const inputError = validateListInput(input.to, input.headerText, input.bodyText, input.buttonText, input.sections);
+  if (inputError) return inputError;
 
-  // Validate required input
-  if (!input.to || !input.headerText || !input.bodyText || !input.buttonText || !input.sections || input.sections.length === 0) {
-    return {
-      success: false,
-      error: {
-        message: 'Recipient, header text, body text, button text, and at least one section are required',
-        code: 'INVALID_INPUT'
-      }
-    };
-  }
-
-  // Validate sections and items
-  for (const section of input.sections) {
-    if (!section.title || !section.items || section.items.length === 0) {
-      return {
-        success: false,
-        error: {
-          message: 'Each section must have a title and at least one item',
-          code: 'INVALID_SECTION'
-        }
-      };
-    }
-
-    for (const item of section.items) {
-      if (!item.id || !item.title) {
-        return {
-          success: false,
-          error: {
-            message: 'Each list item must have an id and title',
-            code: 'INVALID_ITEM'
-          }
-        };
-      }
-    }
-  }
+  // Type assertion after validation
+  const wabaConfig = config as ProviderWabaConfig;
 
   try {
     // Prepare WABA API payload
@@ -107,10 +62,10 @@ export const sendListSingleSelectWaba = async (
     }
 
     // Send message via WABA API
-    const response = await fetch(`https://graph.facebook.com/v23.0/${config.whatsappPhoneNumberId}/messages`, {
+    const response = await fetch(`https://graph.facebook.com/v23.0/${wabaConfig.whatsappPhoneNumberId}/messages`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${config.whatsappToken}`,
+        'Authorization': `Bearer ${wabaConfig.whatsappToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)

@@ -1,8 +1,14 @@
 import { WhatsAppAudioMessage } from "../standarizerInput.types.js";
-import { AudioToTextService } from "@repo/services-audio_to_text";
-import { ProviderConfig } from "../../../index.types.js";
+import { AudioToTextService } from "@/messagingService/services/audio_to_text/index.js";
+import { ProviderConfig } from "@/messagingService/index.types.js";
+import { isWabaConfig } from "../validation.js";
 
 export async function audioInputToText(audio: WhatsAppAudioMessage, config: ProviderConfig): Promise<string> {
+    // Validate that config is for WABA
+    if (!isWabaConfig(config)) {
+      console.warn('Invalid configuration: expected WABA provider, skipping audio text extraction');
+      return "No speech detected: Error 1";
+    }
 
     const audioMessage = audio as WhatsAppAudioMessage;
       

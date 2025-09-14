@@ -1,8 +1,14 @@
 import { WhatsAppImageMessage } from "../standarizerInput.types.js";
-import { ImageToTextService } from "@repo/services-image_to_text";
-import { ProviderConfig } from "../../../index.types.js";
+import { ImageToTextService } from "@/messagingService/services/image_to_text/index.js";
+import { ProviderConfig } from "@/messagingService/index.types.js";
+import { isWabaConfig } from "../validation.js";
 
 export async function imageInputToText(image: WhatsAppImageMessage, config: ProviderConfig): Promise<string> {
+    // Validate that config is for WABA
+    if (!isWabaConfig(config)) {
+      console.warn('Invalid configuration: expected WABA provider, skipping image text extraction');
+      return "No text detected: Error 1";
+    }
 
     const imageMessage = image as WhatsAppImageMessage;
       

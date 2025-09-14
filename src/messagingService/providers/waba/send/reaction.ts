@@ -1,42 +1,22 @@
-import { StandardizedSendReactionInput, StandardizedSendResponse } from '../../../standarized/send/sendReaction.types.js';
-import { ProviderConfig } from '../../../index.types.js';
+import { StandardizedSendReactionInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendReaction.types.js';
+import { ProviderConfig, ProviderWabaConfig } from '@/messagingService/index.types.js';
+import { validateWabaConfig, validateReactionInput } from '../validation.js';
 
 // WABA-specific reaction message sending
 export const sendReactionWaba = async (
   input: StandardizedSendReactionInput,
   config: ProviderConfig
 ): Promise<StandardizedSendResponse> => {
-  // Validate required configuration
-  if (!config.whatsappToken) {
-    return {
-      success: false,
-      error: {
-        message: 'WhatsApp token is required for sending messages',
-        code: 'MISSING_TOKEN'
-      }
-    };
-  }
+  // Validate configuration
+  const configError = validateWabaConfig(config);
+  if (configError) return configError;
 
-  if (!config.whatsappPhoneNumberId) {
-    return {
-      success: false,
-      error: {
-        message: 'WhatsApp phone number ID is required for sending messages',
-        code: 'MISSING_PHONE_NUMBER_ID'
-      }
-    };
-  }
+  // Validate input
+  const inputError = validateReactionInput(input.to, input.emoji, input.messageId);
+  if (inputError) return inputError;
 
-  // Validate required input
-  if (!input.to || !input.emoji || !input.messageId) {
-    return {
-      success: false,
-      error: {
-        message: 'Recipient, emoji, and message ID are required',
-        code: 'INVALID_INPUT'
-      }
-    };
-  }
+  // Type assertion after validation
+  const wabaConfig = config as ProviderWabaConfig;
 
   try {
     // Prepare WABA API payload
@@ -51,10 +31,10 @@ export const sendReactionWaba = async (
     };
 
     // Send message via WABA API
-    const response = await fetch(`https://graph.facebook.com/v23.0/${config.whatsappPhoneNumberId}/messages`, {
+    const response = await fetch(`https://graph.facebook.com/v23.0/${wabaConfig.whatsappPhoneNumberId}/messages`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${config.whatsappToken}`,
+        'Authorization': `Bearer ${wabaConfig.whatsappToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)

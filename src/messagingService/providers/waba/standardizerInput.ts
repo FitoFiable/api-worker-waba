@@ -10,13 +10,19 @@ import {
 import { imageInputToText } from './receive/image.js';
 import { audioInputToText } from './receive/audio.js';
 
-import { StandardizedMessage, ProviderConfig } from '../../index.types.js';
+import { StandardizedMessage, ProviderConfig } from '@messagingService/index.types.js';
+import { isWabaConfig } from './validation.js';
 
 export const standardizeWabaMessage = async (
   message: WhatsAppMessage,
   receiverID: string,
-  config?: ProviderConfig
+  config: ProviderConfig
 ): Promise<StandardizedMessage | null> => {
+  // Validate that config is for WABA
+  if (!isWabaConfig(config)) {
+    console.warn('Invalid configuration: expected WABA provider');
+    return null;
+  }
   
   // Determine message type and content
   let messageType: StandardizedMessage['messageType'];
@@ -30,12 +36,12 @@ export const standardizeWabaMessage = async (
     
     case 'audio':
       messageType = 'audio';
-      content = await audioInputToText(message as WhatsAppAudioMessage, config!);
+      content = await audioInputToText(message as WhatsAppAudioMessage, config);
       break;
     
     case 'image':
       messageType = 'image';
-      content = await imageInputToText(message as WhatsAppImageMessage, config!);
+      content = await imageInputToText(message as WhatsAppImageMessage, config);
       break;
 
     case 'interactive':

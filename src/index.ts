@@ -26,8 +26,6 @@ app.use('*', async (c, next) => {
     evolutionInstanceId: c.env.EVOLUTION_INSTANCE_ID,
     selectedProvider: 'evolutionAPI',
   });
-
-
   
   // Extend context with providers
   c.set('messagingService', messagingProvider);
