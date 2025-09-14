@@ -22,12 +22,15 @@ export const sendReactionEvolutionAPI = async (
     // Prepare Evolution API payload
     const payload: any = {
       key: {
-        remoteJid: input.to,
+        remoteJid: `${input.to}@s.whatsapp.net`,
         fromMe: true,
         id: input.messageId
       },
       reaction: input.emoji
     };
+    
+    // Debug logging
+    console.log('Evolution API Reaction Payload:', JSON.stringify(payload, null, 2));
 
     // Send message via Evolution API
     const response = await fetch(`${evolutionConfig.evolutionAPIUrl}/message/sendReaction/${evolutionConfig.evolutionInstanceId}`, {
@@ -40,12 +43,15 @@ export const sendReactionEvolutionAPI = async (
     });
 
     const responseData = await response.json() as any;
+    
+    // Debug logging
+    console.log('Evolution API Reaction Response:', JSON.stringify(responseData, null, 2));
 
     if (!response.ok) {
       return {
         success: false,
         error: {
-          message: responseData.error?.message || 'Failed to send reaction',
+          message: responseData.error?.message || responseData.message || 'Failed to send reaction',
           code: responseData.error?.code || response.status
         }
       };

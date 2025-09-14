@@ -19,20 +19,18 @@ export const sendListSingleSelectEvolutionAPI = async (
   const evolutionConfig = config as ProviderEvolutionAPIConfig;
 
   try {
-    // Prepare Evolution API payload
+    // Convert list sections to poll options
+    const pollOptions = input.sections.flatMap(section => 
+      // section.items.map(item => `${item.title}${item.description ? ` - ${item.description}` : ''}`) # includes descriptions
+      section.items.map(item => `${item.title}`)
+    );
+
+    // Prepare Evolution API payload for poll (simulating list)
     const payload: any = {
       number: input.to,
-      title: input.headerText,
-      description: input.bodyText,
-      buttonText: input.buttonText,
-      values: input.sections.map(section => ({
-        title: section.title,
-        rows: section.items.map(item => ({
-          title: item.title,
-          description: item.description || '',
-          rowId: item.id
-        }))
-      })),
+      name: `${input.headerText}${input.bodyText ? `\n\n${input.bodyText}` : ''}`,
+      selectableCount: 1, // Single select like a list
+      values: pollOptions,
       delay: 500,
       linkPreview: false,
       mentionsEveryOne: false
@@ -40,7 +38,7 @@ export const sendListSingleSelectEvolutionAPI = async (
 
     // Add footer if provided
     if (input.footerText) {
-      payload.footerText = input.footerText;
+      payload.name += `\n\n${input.footerText}`;
     }
 
     // Add reply context if provided
@@ -55,8 +53,8 @@ export const sendListSingleSelectEvolutionAPI = async (
       };
     }
 
-    // Send message via Evolution API
-    const response = await fetch(`${evolutionConfig.evolutionAPIUrl}/message/sendList/${evolutionConfig.evolutionInstanceId}`, {
+    // Send message via Evolution API using poll endpoint
+    const response = await fetch(`${evolutionConfig.evolutionAPIUrl}/message/sendPoll/${evolutionConfig.evolutionInstanceId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +69,7 @@ export const sendListSingleSelectEvolutionAPI = async (
       return {
         success: false,
         error: {
-          message: responseData.error?.message || 'Failed to send list',
+          message: responseData.error?.message || responseData.message || 'Failed to send poll (simulating list)',
           code: responseData.error?.code || response.status
         }
       };
