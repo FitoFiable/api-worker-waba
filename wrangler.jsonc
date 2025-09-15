@@ -36,7 +36,7 @@
       "name": "fitofiable-api-worker-waba-staging",
       "vars": {
         "EVOLUTION_API_URL": "https://evolution-api-production-980d.up.railway.app",
-        "EVOLUTION_INSTANCE_ID": "7a3578bc-2a07-45da-a58e-0f8abf1b983b",
+        "EVOLUTION_INSTANCE_ID": "waba-production",
         "CLOUDFLARE_ACCOUNT_ID": "923004218685a8623163e0e87d6a1e1d",
         "AWS_ACCESS_KEY": "AKIA3HBQ3YP5GHYEHEEJ",
         "API_CORE_URL": "https://staging.api.fitofiable.com"
@@ -59,7 +59,7 @@
       "name": "fitofiable-api-worker-waba-production",
       "vars": {
         "EVOLUTION_API_URL": "https://evolution-api-production-980d.up.railway.app",
-        "EVOLUTION_INSTANCE_ID": "7a3578bc-2a07-45da-a58e-0f8abf1b983b",
+        "EVOLUTION_INSTANCE_ID": "waba-production",
         "CLOUDFLARE_ACCOUNT_ID": "923004218685a8623163e0e87d6a1e1d",
         "AWS_ACCESS_KEY": "AKIA3HBQ3YP5GHYEHEEJ",
         "API_CORE_URL": "https://api.fitofiable.com"
