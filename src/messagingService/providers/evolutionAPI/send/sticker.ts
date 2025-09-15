@@ -1,4 +1,4 @@
-import { StandardizedSendStickerInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendSticker.types.js';
+import { StandardizedSendStickerInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendTypes.js';
 import { ProviderConfig, ProviderEvolutionAPIConfig } from '@/messagingService/index.types.js';
 import { validateEvolutionAPIConfig, validateStickerInput } from '../validation.js';
 

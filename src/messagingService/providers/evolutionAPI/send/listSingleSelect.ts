@@ -1,4 +1,4 @@
-import { StandardizedSendListSingleSelectInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendListSingleSelect.types.js';
+import { StandardizedSendListSingleSelectInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendTypes.js';
 import { ProviderConfig, ProviderEvolutionAPIConfig } from '@/messagingService/index.types.js';
 import { validateEvolutionAPIConfig, validateListInput } from '../validation.js';
 

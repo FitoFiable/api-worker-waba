@@ -1,4 +1,4 @@
-import { StandardizedSendImageInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendImage.types.js';
+import { StandardizedSendImageInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendTypes.js';
 import { ProviderConfig, ProviderWabaConfig } from '@/messagingService/index.types.js';
 import { validateWabaConfig, validateImageInput } from '../validation.js';
 

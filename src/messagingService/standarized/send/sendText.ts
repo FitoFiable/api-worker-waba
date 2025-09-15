@@ -1,7 +1,7 @@
 // Main messaging provider send standardization switch
 import { sendTextWaba } from '../../providers/waba/send/text.js';
 import { sendTextEvolutionAPI } from '../../providers/evolutionAPI/send/text.js';
-import { StandardizedSendTextInput, StandardizedSendResponse } from './sendText.types.js';
+import { StandardizedSendTextInput, StandardizedSendResponse } from './sendTypes.js';
 import { ProviderConfig } from '../../index.types.js';
 
 // Main standardization function that detects provider and routes accordingly

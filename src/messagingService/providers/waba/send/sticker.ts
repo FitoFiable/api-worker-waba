@@ -1,4 +1,4 @@
-import { StandardizedSendStickerInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendSticker.types.js';
+import { StandardizedSendStickerInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendTypes.js';
 import { ProviderConfig, ProviderWabaConfig } from '@/messagingService/index.types.js';
 import { validateWabaConfig, validateStickerInput } from '../validation.js';
 

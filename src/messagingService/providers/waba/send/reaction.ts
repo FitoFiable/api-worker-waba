@@ -1,4 +1,4 @@
-import { StandardizedSendReactionInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendReaction.types.js';
+import { StandardizedSendReactionInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendTypes.js';
 import { ProviderConfig, ProviderWabaConfig } from '@/messagingService/index.types.js';
 import { validateWabaConfig, validateReactionInput } from '../validation.js';
 

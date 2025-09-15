@@ -5,20 +5,11 @@ import { standardizeSendListSingleSelect } from "./standarized/send/sendListSing
 import { standardizeSendReaction } from "./standarized/send/sendReaction.js";
 import { standardizeSendSticker } from "./standarized/send/sendSticker.js";
 import type { MessagingProviderInput, ProviderConfig, StandardizedMessage } from "./index.types.js";
-import type { StandardizedSendTextInput, StandardizedSendResponse } from "./standarized/send/sendText.types.js";
-import type { StandardizedSendImageInput } from "./standarized/send/sendImage.types.js";
-import type { StandardizedSendListSingleSelectInput } from "./standarized/send/sendListSingleSelect.types.js";
-import type { StandardizedSendReactionInput } from "./standarized/send/sendReaction.types.js";
-import type { StandardizedSendStickerInput } from "./standarized/send/sendSticker.types.js";
+import type { StandardizedSendTextInput, StandardizedSendResponse, StandardizedSendImageInput, StandardizedSendListSingleSelectInput, StandardizedSendReactionInput, StandardizedSendStickerInput } from "./standarized/send/sendTypes.js";
 
 // Re-export all types
 export * from "./index.types.js";
-export * from "./standarized/send/sendCommon.types.js";
-export * from "./standarized/send/sendText.types.js";
-export * from "./standarized/send/sendImage.types.js";
-export * from "./standarized/send/sendListSingleSelect.types.js";
-export * from "./standarized/send/sendReaction.types.js";
-export * from "./standarized/send/sendSticker.types.js";
+export * from "./standarized/send/sendTypes.js";
 
 export class MessageProvider {
   // Full provider configuration object

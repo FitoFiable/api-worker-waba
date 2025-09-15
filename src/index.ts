@@ -55,7 +55,7 @@ app.post("/webhook-evolution-api", async (c) => {
 
     // Process the message in the background using context.waitUntil
     c.executionCtx.waitUntil(
-      handleEvolutionAPIMessage(payload, messagingService)
+      handleEvolutionAPIMessage(payload, messagingService, c.env.API_CORE_URL)
         .catch(error => {
           console.error('Background message processing failed:', error);
         })

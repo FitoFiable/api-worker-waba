@@ -1,7 +1,7 @@
 // Main messaging provider send sticker standardization switch
 import { sendStickerWaba } from '../../providers/waba/send/sticker.js';
 import { sendStickerEvolutionAPI } from '../../providers/evolutionAPI/send/sticker.js';
-import { StandardizedSendStickerInput, StandardizedSendResponse } from './sendSticker.types.js';
+import { StandardizedSendStickerInput, StandardizedSendResponse } from './sendTypes.js';
 import { ProviderConfig } from '../../index.types.js';
 
 // Main standardization function that detects provider and routes accordingly

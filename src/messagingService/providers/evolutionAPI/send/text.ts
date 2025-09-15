@@ -1,4 +1,4 @@
-import { StandardizedSendTextInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendText.types.js';
+import { StandardizedSendTextInput, StandardizedSendResponse } from '@/messagingService/standarized/send/sendTypes.js';
 import { ProviderConfig, ProviderEvolutionAPIConfig } from '@/messagingService/index.types.js';
 import { validateEvolutionAPIConfig, validateBasicInput } from '../validation.js';
 

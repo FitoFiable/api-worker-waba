@@ -1,7 +1,7 @@
 // Main messaging provider send image standardization switch
 import { sendImageWaba } from '../../providers/waba/send/image.js';
 import { sendImageEvolutionAPI } from '../../providers/evolutionAPI/send/image.js';
-import { StandardizedSendImageInput, StandardizedSendResponse } from './sendImage.types.js';
+import { StandardizedSendImageInput, StandardizedSendResponse } from './sendTypes.js';
 import { ProviderConfig } from '../../index.types.js';
 
 // Main standardization function that detects provider and routes accordingly

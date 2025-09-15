@@ -1,7 +1,7 @@
 // Main messaging provider send reaction standardization switch
 import { sendReactionWaba } from '../../providers/waba/send/reaction.js';
 import { sendReactionEvolutionAPI } from '../../providers/evolutionAPI/send/reaction.js';
-import { StandardizedSendReactionInput, StandardizedSendResponse } from './sendReaction.types.js';
+import { StandardizedSendReactionInput, StandardizedSendResponse } from './sendTypes.js';
 import { ProviderConfig } from '../../index.types.js';
 
 // Main standardization function that detects provider and routes accordingly
