@@ -2,6 +2,8 @@ import { Hono } from 'hono'
 import { Bindings } from './bindings.js'
 import { MessageProvider } from './messagingService/index.js'
 import { dummyTestMessages } from './dummyTestMessages.js'
+import { handleEvolutionAPIMessage } from './handleEvolutionAPIMessage.js'
+import messageRoutes from './messageRoutes.js'
 
 type Variables = {
   messagingService: MessageProvider
@@ -48,46 +50,28 @@ app.post("/webhook-evolution-api", async (c) => {
     const payload = await c.req.json();
     console.log("payload:", payload)
 
-    // Check if it's a message event
-    if (payload.event === 'messages.upsert') {
-      const messageData = payload.data;
-      
-      // Check if message is from someone else (not from us)
-      if (!messageData.key.fromMe) {
-        const senderId = messageData.key.remoteJid.replace('@s.whatsapp.net', '');
-       
-        // Standardize the message using our messaging service
-        const standardizedMessages = await c.get('messagingService').standarizeInput({
-          message: messageData.message,
-          receiverID: senderId
-        }, messageData);
-        
-        if (standardizedMessages && standardizedMessages.length > 0) {
-          const standardizedMessage = standardizedMessages[0];
-          
-          // Example: Echo back the message
-          console.log(standardizedMessage)
-          if (standardizedMessage && "messageType" in standardizedMessage) {
-            await c.get('messagingService').sendText({
-              to: senderId,
-              message: `Echo: ${standardizedMessage.messageType} - ${standardizedMessage.associatedMediaUrl} : ${standardizedMessage.content}`
-            });
-          }
-        } else {
-          console.log('❌ Failed to standardize message');
-        }
-      } else {
-        console.log('📤 Ignoring message from ourselves');
-      }
-    }
+    // Get the messaging service from context
+    const messagingService = c.get('messagingService');
 
-    return c.json({ message: "Webhook processed successfully" });
+    // Process the message in the background using context.waitUntil
+    c.executionCtx.waitUntil(
+      handleEvolutionAPIMessage(payload, messagingService)
+        .catch(error => {
+          console.error('Background message processing failed:', error);
+        })
+    );
+
+    // Return immediately to acknowledge the webhook
+    return c.json({ message: "Webhook received and processing started" });
   } catch (error) {
     console.error('Error processing Evolution API webhook:', error);
     return c.json({ error: "Failed to process webhook" }, 500);
   }
 })
 
+
+// Mount message sending routes
+app.route('/messages', messageRoutes)
 
 // Mount dummy test messages routes
 app.route('/', dummyTestMessages)
